@@ -8,7 +8,7 @@ namespace SystemyUczace
 {
     public class GainRatioMax
     {
-        public GainRatioMax(int index, double gainRatio)
+        public GainRatioMax(int index = 0, double gainRatio = 0)
         {
             Index = index;
             GainRatio = gainRatio;
