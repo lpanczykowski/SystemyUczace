@@ -12,6 +12,8 @@ namespace SystemyUczace
         public static bool debug = false;
         
         public static Node Tree;
+        static string spliter;
+        static string[][] data;
         public static void log(string text, int method = 1, int force = 0)
         {
             if ((debug && method == 1) || (force == 1))
@@ -191,7 +193,15 @@ namespace SystemyUczace
             else
             {
                 if (data.ElementAtOrDefault(0) != null)
-                    n.decision = data[0][data[0].Length - 1];
+                {
+                    List<string> decisions = new List<string>();
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        decisions.Add(data[i][data[0].Length - 1]);
+                        
+                    }
+                    n.decision = decisions.Max();
+                }
                 else
                     n.decision = "Nie umiem podjąć decyzji";
             }
@@ -213,12 +223,68 @@ namespace SystemyUczace
         static void Main(string[] args)
         {
             string filepath = "d:/Zajecia/jKoz/";
+            
             filepath += "car.data";
-            string spliter = File.ReadLines(filepath).First();
-            string[][] data = File.ReadLines(filepath).Skip(1).Select(line => line.Split(spliter)).ToArray();
+            List<char> spliters = new List<char>();
+
+            spliters.Add(';');
+            spliters.Add(':');
+            spliters.Add('.');
+            spliters.Add(' ');
+            spliters.Add(',');           
+            filepath = "";
+            while (!File.Exists(filepath))
+            {
+                if (filepath == "")
+                    Console.WriteLine("Wskaż plik");
+                else
+                    Console.WriteLine("Plik nie istnieje");
+                filepath = Console.ReadLine();
+            }
+            Console.WriteLine("1. Wczytaj plik z separatorami ';' | ':' | '.' | ' ' | ',' | '  ' ");
+            Console.WriteLine("2. Wskaż swój własny separator");
+            Console.WriteLine("3. Odczytaj separator z pierwszej lini");
+            
+            var key = Console.ReadKey(true);
+            switch(key.Key)
+            {
+                case ConsoleKey.D2:
+                    Console.WriteLine("Podaj separator: ");
+                    spliter = Console.ReadLine();
+                    data = File.ReadLines(filepath).Select(line => line.Split(spliter)).ToArray();
+                    break;
+                case ConsoleKey.D3:
+                     spliter = File.ReadLines(filepath).First();
+                     data = File.ReadLines(filepath).Skip(1).Select(line => line.Split(spliter)).ToArray();
+                    break;
+                default :
+                    string lines = File.ReadLines(filepath).ToString();
+                    spliter = FindSpliter(spliters, lines);
+                    data = File.ReadLines(filepath).Select(line => line.Split(spliter)).ToArray();
+                    break;
+
+            }
+            
+            
             Tree = BuildTree(data);
             DrawTree("", Tree,"");
             Console.ReadKey();
+        }
+
+        private static string FindSpliter(List<char> spliter,string lines)
+        {
+            int countSpliter = 0;
+            char bestSpliter;
+            bestSpliter = ',';
+            foreach (var s in spliter)
+            {
+                int tmp;
+                tmp = lines.Count(l => l == s);
+                if (tmp > countSpliter)
+                    countSpliter = tmp;
+                    bestSpliter = s;
+            }
+            return bestSpliter.ToString();
         }
     }
 }
